@@ -5,6 +5,11 @@ import cors from "cors";
 import { APP_ORIGIN, NODE_ENV, PORT } from "./constants/env";
 import { dbConnection } from "./config/db";
 import cookieParser from "cookie-parser";
+import errorHandler from "./middlware/errorHandler";
+// import catchErrors from "./utils/catchErrors";
+import { OK } from "./constants/http";
+import authRoutes  from "./routes/auth.route";
+import { clear } from "console";
 
 const app = express();
 
@@ -25,15 +30,21 @@ app.use(cors({
 app.use(cookieParser()); 
 
 
-
-app.get("/", (req, res)=>{
-     res.status(200).json({message: "hey world!"});
+app.get("/",(req, res, next)=>{
+    res.status(OK).json({message: "hey world!"});
 })
+
+// AUTH ROUTE
+app.use("/auth", authRoutes);
+
+
+// handle all application errors in one place
+app.use(errorHandler);
 
 app.listen(
     PORT,
     async()=>{
         console.log(`server running on port ${PORT} in ${NODE_ENV} environement`);
-        await dbConnection()
+        await dbConnection();
     }
 )
