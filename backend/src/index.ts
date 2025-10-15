@@ -19,7 +19,7 @@ app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
 // middlware cors: cross-origin-resources-sharing :
-// prevent websites from sending  requests to servers they are not authorized فخ
+// prevent websites from sending  requests to servers they are not authorized 
 app.use(cors({
       origin: APP_ORIGIN,
       credentials: true, // if you need to send a cookies
@@ -38,7 +38,7 @@ app.get("/",(req, res, next)=>{
 app.use("/auth", authRoutes);
 
 
-// handle all application errors in one place
+// middleware errors: handle all application errors in one place
 app.use(errorHandler);
 
 app.listen(

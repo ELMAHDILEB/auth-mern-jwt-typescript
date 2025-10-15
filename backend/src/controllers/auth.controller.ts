@@ -2,7 +2,7 @@ import z from "zod";
 import catchErrors from "../utils/catchErrors";
 import { BAD_REQUEST, CREATED } from "../constants/http";
 
-// // create register schema using zod 
+// create register schema using zod 
 export const registerSchema = z.object({
     email: z.string().email().min(1).max(255),
     password: z.string().min(6).max(255),
@@ -23,6 +23,7 @@ export const registerHandler = catchErrors(async (req, res)=>{
      });
 
      const request = result.data;
+     console.log(request)
 
      if(!result.success){
         res.status(BAD_REQUEST).json({
