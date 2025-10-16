@@ -1,6 +1,6 @@
 import z from "zod";
 import catchErrors from "../utils/catchErrors";
-import { BAD_REQUEST, CREATED } from "../constants/http";
+import { StatusCodes } from "http-status-codes";
 
 // create register schema using zod 
 export const registerSchema = z.object({
@@ -10,10 +10,9 @@ export const registerSchema = z.object({
     userAgent: z.string().optional()
 }).refine(
     (data)=> data.password === data.confirmPassword, {
+        path: ["confirmPassword"],
         message: "Password do not matched!",
-        path: ["confirmPassword"]
-    }
-)
+    })
 
 export const registerHandler = catchErrors(async (req, res)=>{
      // validate request
@@ -23,10 +22,9 @@ export const registerHandler = catchErrors(async (req, res)=>{
      });
 
      const request = result.data;
-     console.log(request)
 
      if(!result.success){
-        res.status(BAD_REQUEST).json({
+        res.status(StatusCodes.BAD_REQUEST).json({
             message: "VALIDATION ERROR",
             errors: result.error.format(),
         })
@@ -35,7 +33,7 @@ export const registerHandler = catchErrors(async (req, res)=>{
      // call service
 
      // return response
-     res.status(CREATED).json({
+     res.status(StatusCodes.CREATED).json({
         message: "user registered successfully",
         user:{
             email: request?.email,

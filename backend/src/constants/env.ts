@@ -1,10 +1,8 @@
-const getEnv = (key:string, defaultValue?: string):string =>{
-   const value = process.env[key] || defaultValue;
-
-   if(value === undefined)  throw new Error(`Missing environement variable ${key}`);
-     return value;
+class AuthEnv {
+   public static MONGO_URI: string = process.env.MONGO_URI || "";
+   public static PORT: string | undefined = process.env.PORT || undefined;
+   public static NODE_ENV: string  | undefined= process.env.NODE_ENV || undefined;
+   public static APP_ORIGIN: string  | undefined= process.env.APP_ORIGIN || undefined;
 }
-export const MONGO_URI = getEnv("MONGO_URI");
-export const PORT = getEnv("PORT", "4001");
-export const NODE_ENV = getEnv("NODE_ENV", "development");
-export const APP_ORIGIN = getEnv("APP_ORIGIN", "http://localhost:5173/");
+
+export default AuthEnv;

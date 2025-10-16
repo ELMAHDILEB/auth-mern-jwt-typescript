@@ -2,14 +2,13 @@ import dotenv from "dotenv";
 dotenv.config(); // before using any process.env use dotenv.config()
 import express from "express";
 import cors from "cors";
-import { APP_ORIGIN, NODE_ENV, PORT } from "./constants/env";
 import { dbConnection } from "./config/db";
 import cookieParser from "cookie-parser";
 import errorHandler from "./middlware/errorHandler";
 // import catchErrors from "./utils/catchErrors";
-import { OK } from "./constants/http";
 import authRoutes  from "./routes/auth.route";
-import { clear } from "console";
+import AuthEnv from "./constants/env";
+import { StatusCodes } from "http-status-codes";
 
 const app = express();
 
@@ -21,7 +20,7 @@ app.use(express.urlencoded({extended: true}));
 // middlware cors: cross-origin-resources-sharing :
 // prevent websites from sending  requests to servers they are not authorized 
 app.use(cors({
-      origin: APP_ORIGIN,
+      origin: AuthEnv.APP_ORIGIN,
       credentials: true, // if you need to send a cookies
     })
 )
@@ -31,7 +30,7 @@ app.use(cookieParser());
 
 
 app.get("/",(req, res, next)=>{
-    res.status(OK).json({message: "hey world!"});
+    res.status(StatusCodes.OK).json({message: "hey world!"});
 })
 
 // AUTH ROUTE
@@ -42,9 +41,8 @@ app.use("/auth", authRoutes);
 app.use(errorHandler);
 
 app.listen(
-    PORT,
+    AuthEnv.PORT,
     async()=>{
-        console.log(`server running on port ${PORT} in ${NODE_ENV} environement`);
+        console.log(`server running on port ${AuthEnv.PORT} in ${AuthEnv.NODE_ENV} environement`);
         await dbConnection();
-    }
-)
+    })

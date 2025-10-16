@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
-import bcrypt from "bcrypt"
-import { compareValue, hashValue } from "../utils/bcrypt";
+import BcryptUtil from "../utils/bcrypt";
 
 export interface UserDocument extends mongoose.Document {
     email: string;
@@ -20,15 +19,15 @@ const userSchema = new mongoose.Schema<UserDocument>({
 })
 
 
-// Middlware:  hash password before stock
+// Middlware:  hash password before store
 userSchema.pre('save', async function (next){
     if(!this.isModified("password")) return next();
-   this.password = await hashValue(this.password)
+   this.password = await BcryptUtil.hashValue(this.password);
    next();
 });
 
 userSchema.methods.comparePassword = async function (value: string){
-    return compareValue(value, this.password);
+    return BcryptUtil.compareValue(value, this.password);
 }
 
 const UserModel = mongoose.model<UserDocument>("User", userSchema);
