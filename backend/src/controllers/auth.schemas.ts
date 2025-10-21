@@ -1,0 +1,20 @@
+import z from "zod";
+
+const emailSchema = z.string().email().min(1).max(255);
+const passwordSchema = z.string().min(6).max(255);
+
+export const loginSchema = z.object({
+  email: emailSchema,
+  password: passwordSchema,
+  userAgent: z.string().optional(),
+});
+
+// create register schema using zod
+export const registerSchema = loginSchema
+  .extend({
+    confirmPassword: z.string().min(6).max(255),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "Password do not matched!",
+  });

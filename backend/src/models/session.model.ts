@@ -19,7 +19,7 @@ const sessionSchema = new mongoose.Schema<SessionDocument>(
         userAgent: { type: String},
         createdAt: { type: Date, required: true, default:Date.now},
         expiredAt: { type: Date,
-            default: DateUtil.thirtyDaysFromNow
+            default: DateUtil.thirtyDaysFromNow()
         }
     });
 

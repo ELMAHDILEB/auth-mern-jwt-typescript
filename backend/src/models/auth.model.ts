@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 import BcryptUtil from "../utils/bcrypt";
-
 export interface UserDocument extends mongoose.Document {
     email: string;
     password: string;
@@ -8,6 +7,7 @@ export interface UserDocument extends mongoose.Document {
     createAt: Date;
     updateAt: Date;
     comparePassword(val: string): Promise<boolean>;
+    omitPassword(): Omit<UserDocument, "password">;
 }
 
 const userSchema = new mongoose.Schema<UserDocument>({
@@ -18,7 +18,6 @@ const userSchema = new mongoose.Schema<UserDocument>({
     timestamps: true,
 })
 
-
 // Middlware:  hash password before store
 userSchema.pre('save', async function (next){
     if(!this.isModified("password")) return next();
@@ -28,6 +27,12 @@ userSchema.pre('save', async function (next){
 
 userSchema.methods.comparePassword = async function (value: string){
     return BcryptUtil.compareValue(value, this.password);
+}
+
+userSchema.methods.omitPassword = function (){
+    const user = this.toObject();
+    delete user.password;
+    return user;
 }
 
 const UserModel = mongoose.model<UserDocument>("User", userSchema);

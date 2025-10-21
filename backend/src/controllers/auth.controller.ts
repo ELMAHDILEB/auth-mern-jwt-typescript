@@ -1,43 +1,42 @@
-import z from "zod";
 import catchErrors from "../utils/catchErrors";
 import { StatusCodes } from "http-status-codes";
+import { createAccount, loginUser } from "../service/auth.service";
+import setAuthCookies from "../utils/cookies";
+import { loginSchema, registerSchema } from "./auth.schemas";
 
-// create register schema using zod 
-export const registerSchema = z.object({
-    email: z.string().email().min(1).max(255),
-    password: z.string().min(6).max(255),
-    confirmPassword: z.string().min(6).max(255),
-    userAgent: z.string().optional()
-}).refine(
-    (data)=> data.password === data.confirmPassword, {
-        path: ["confirmPassword"],
-        message: "Password do not matched!",
+
+export const registerHandler = catchErrors(async (req, res) => {
+  // validate request
+  const result = registerSchema.safeParse({
+    ...req.body,
+    userAgent: req.header("user-agent"),
+  });
+
+  if (!result.success) {
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      message: "VALIDATION ERROR",
+      errors: result.error.format(),
+    });
+  }
+
+  const request = result?.data;
+
+  // call service
+  const { user, accessToken, refreshToken } = await createAccount(request);
+
+  // set cookies then send response
+  setAuthCookies({res, accessToken, refreshToken})
+  return res.status(StatusCodes.CREATED).json(user);
+});
+
+
+export const loginHandler = catchErrors(async (req, res)=>{
+    // validate request
+    const request = loginSchema.parse({...req.body, userAgent: req.header("user-agent"),});
+    const {accessToken, refreshToken} = await loginUser(request);
+
+    setAuthCookies({res, accessToken, refreshToken})
+    return res.status(StatusCodes.OK).json({
+      message: "Login successful",
     })
-
-export const registerHandler = catchErrors(async (req, res)=>{
-     // validate request
-     const result = registerSchema.safeParse({
-        ...req.body,
-        userAgent: req.header("user-agent")
-     });
-
-     const request = result.data;
-
-     if(!result.success){
-        res.status(StatusCodes.BAD_REQUEST).json({
-            message: "VALIDATION ERROR",
-            errors: result.error.format(),
-        })
-     }
-
-     // call service
-
-     // return response
-     res.status(StatusCodes.CREATED).json({
-        message: "user registered successfully",
-        user:{
-            email: request?.email,
-            userAgent: request?.userAgent
-        }
-     })
 })
